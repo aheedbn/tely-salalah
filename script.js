@@ -138,6 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.lang = 'en';
         }
 
+        // Update Hero Quote
+        const heroQuote = document.querySelector('.hero-quote');
+        if (heroQuote) {
+            heroQuote.textContent = currentLang === 'en' ? heroQuote.dataset.en : heroQuote.dataset.ar;
+        }
+
         // Refresh current view
         if (currentCategory) {
             showItemsView(currentCategory);
