@@ -43,7 +43,7 @@ const menuData = [
     // Evening Snack
     { categoryEn: "Evening Snack", categoryAr: "مساء سناكس", nameEn: "Cutlet", nameAr: "كوفة", price: "0.200" },
     { categoryEn: "Evening Snack", categoryAr: "مساء سناكس", nameEn: "Irachi Pathil", nameAr: "ايريشي باتيل", price: "0.200" },
-    { categoryEn: "Evening Snack", categoryAr: "مساء سناكس", nameEn: "Payam Puri", nameAr: "بايام بوري", price: "0.150" },
+    { categoryEn: "Evening Snack", categoryAr: "مساء سناكس", nameEn: "Payam Pori", nameAr: "بايام بوري", price: "0.150" },
     { categoryEn: "Evening Snack", categoryAr: "مساء سناكس", nameEn: "Payam Nirachathu", nameAr: "بايام نيراتشو", price: "0.250" },
     { categoryEn: "Evening Snack", categoryAr: "مساء سناكس", nameEn: "Bread Pocket", nameAr: "جيب الخبز", price: "0.300" },
     { categoryEn: "Evening Snack", categoryAr: "مساء سناكس", nameEn: "Atti Pathil", nameAr: "عطا فتيلي", price: "0.250" },
