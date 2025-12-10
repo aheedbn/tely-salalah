@@ -176,9 +176,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Listeners
-    // Back button now acts as browser back
+    // Back button with robust fallback
     backBtn.addEventListener('click', () => {
-        history.back();
+        if (history.state && history.state.view === 'items') {
+            history.back();
+        } else {
+            // Fallback if History API failed or state is missing/invalid
+            showCategoryView();
+            // Clean URL if needed
+            try {
+                if (window.location.hash === '#items') {
+                    history.replaceState({ view: 'categories' }, '', ' ');
+                }
+            } catch (e) { }
+        }
     });
 
     langToggleBtn.addEventListener('click', toggleLanguage);
