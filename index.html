@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tely Restaurant Menu</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Tajawal:wght@400;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <div class="logo-container">
+            <!-- Placeholder for Logo if image is not ready, text for now -->
+            <h1 class="logo-text">Tely Restaurant</h1>
+        </div>
+        <button id="lang-toggle" class="lang-btn" aria-label="Switch Language">
+            <span class="lang-text">العربية</span>
+        </button>
+    </header>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <p class="hero-quote">"Delicious moments, crafted for you."</p>
+        </div>
+    </section>
+
+    <main class="menu-container">
+        <h2 id="section-title" class="section-title">Our Menu</h2>
+
+        <!-- Category View -->
+        <div id="category-view" class="view-container">
+            <div id="category-grid" class="category-grid"></div>
+        </div>
+
+        <!-- Items View (Hidden by default) -->
+        <div id="items-view" class="view-container hidden">
+            <button id="back-btn" class="back-btn">
+                <span class="icon">←</span> <span class="text">Back to Categories</span>
+            </button>
+            <div id="items-grid" class="items-grid"></div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>Menu proudly created by Aheed Creation +96897618641</p>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
