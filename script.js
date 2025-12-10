@@ -101,14 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
         itemsView.classList.add('hidden');
         categoryView.classList.remove('hidden');
         sectionTitle.textContent = currentLang === 'en' ? "Our Menu" : "قائمتنا";
-        renderCategories(); // Re-render to update language if needed
-        // Scroll to top
+        renderCategories();
         window.scrollTo(0, 0);
     }
 
     function showItemsView(categoryKey, catDisplayName) {
         currentCategory = categoryKey;
-        // Find display name for title
         if (!catDisplayName) {
             const catObj = getCategories(currentLang).find(c => c.key === categoryKey);
             catDisplayName = catObj ? catObj.displayName : categoryKey;
@@ -118,9 +116,34 @@ document.addEventListener('DOMContentLoaded', () => {
         itemsView.classList.remove('hidden');
         sectionTitle.textContent = catDisplayName;
         renderItems(categoryKey);
-        // Scroll to top
         window.scrollTo(0, 0);
     }
+
+    // History API Handling
+    function navigateToCategory(categoryKey) {
+        showItemsView(categoryKey);
+        try {
+            history.pushState({ view: 'items', category: categoryKey }, '', '#items');
+        } catch (e) {
+            console.warn('History API not supported or blocked:', e);
+        }
+    }
+
+    function navigateToHome() {
+        showCategoryView();
+        // If we are navigating "back" historically, we might not want to pushState here if we are already coming from popstate.
+        // But for initial load or manual "Home" button (if we had one), we might.
+        // For the "Back" button which acts like browser back, we use history.back()
+    }
+
+    window.addEventListener('popstate', (event) => {
+        if (event.state && event.state.view === 'items') {
+            showItemsView(event.state.category);
+        } else {
+            // Default to category view (Home)
+            showCategoryView();
+        }
+    });
 
     // Language Toggle
     function toggleLanguage() {
@@ -153,9 +176,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Listeners
-    backBtn.addEventListener('click', showCategoryView);
+    // Back button now acts as browser back
+    backBtn.addEventListener('click', () => {
+        history.back();
+    });
+
     langToggleBtn.addEventListener('click', toggleLanguage);
 
     // Initial Load
-    showCategoryView();
+    // Handle hash on load if someone shares a link (basic support)
+    if (window.location.hash === '#items' && history.state && history.state.view === 'items') {
+        showItemsView(history.state.category);
+    } else {
+        // Replace initial state to ensure we have a clean slate to go back to
+        try {
+            history.replaceState({ view: 'categories' }, '', ' ');
+        } catch (e) {
+            console.warn('History API not supported or blocked:', e);
+        }
+        showCategoryView();
+    }
 });
