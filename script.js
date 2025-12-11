@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // ----------------------------------------------------------
     // DOM Elements
+    // ----------------------------------------------------------
     const categoryView = document.getElementById('category-view');
     const itemsView = document.getElementById('items-view');
     const categoryGrid = document.getElementById('category-grid');
@@ -11,11 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionTitle = document.getElementById('section-title');
     const body = document.body;
 
-    // State
-    let currentLang = 'en'; // 'en' or 'ar'
-    let currentCategory = null; // null means viewing categories
+    // ----------------------------------------------------------
+    // STATE
+    // ----------------------------------------------------------
+    let currentLang = 'en';
+    let currentCategory = null;
 
-    // Category Icons Mapping (Emojis)
+    // Category Icons
     const categoryIcons = {
         "Juice": "🥤",
         "Hot Drinks": "☕",
@@ -29,34 +34,41 @@ document.addEventListener('DOMContentLoaded', () => {
         "Soups": "🥣"
     };
 
-    // Helper: Get unique categories
+    // ----------------------------------------------------------
+    // HELPERS
+    // ----------------------------------------------------------
     function getCategories(lang) {
         const uniqueCategories = [];
         const seen = new Set();
+
         menuData.forEach(item => {
-            const cat = lang === 'en' ? item.categoryEn : item.categoryAr;
-            // We use English category as key for uniqueness to map icons easier
-            const key = item.categoryEn;
-            if (!seen.has(key)) {
-                seen.add(key);
+            const catEn = item.categoryEn;
+            const catDisplay = lang === 'en' ? item.categoryEn : item.categoryAr;
+
+            if (!seen.has(catEn)) {
+                seen.add(catEn);
                 uniqueCategories.push({
-                    key: key,
-                    displayName: cat
+                    key: catEn,
+                    displayName: catDisplay
                 });
             }
         });
+
         return uniqueCategories;
     }
 
-    // Helper: Get items for a category
     function getItemsForCategory(categoryKey, lang) {
-        return menuData.filter(item => item.categoryEn === categoryKey).map(item => ({
-            name: lang === 'en' ? item.nameEn : item.nameAr,
-            price: item.price
-        }));
+        return menuData
+            .filter(item => item.categoryEn === categoryKey)
+            .map(item => ({
+                name: lang === 'en' ? item.nameEn : item.nameAr,
+                price: item.price
+            }));
     }
 
-    // Render Categories
+    // ----------------------------------------------------------
+    // RENDER FUNCTIONS
+    // ----------------------------------------------------------
     function renderCategories() {
         categoryGrid.innerHTML = '';
         const categories = getCategories(currentLang);
@@ -64,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         categories.forEach(cat => {
             const card = document.createElement('div');
             card.className = 'category-card';
+
             const icon = categoryIcons[cat.key] || "🍽️";
 
             card.innerHTML = `
@@ -71,81 +84,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="category-name">${cat.displayName}</span>
             `;
 
+            // Use navigateToCategory instead of showItemsView
             card.addEventListener('click', () => {
-                showItemsView(cat.key);
+                navigateToCategory(cat.key);
             });
 
             categoryGrid.appendChild(card);
         });
     }
 
-    // Render Items
     function renderItems(categoryKey) {
         itemsGrid.innerHTML = '';
         const items = getItemsForCategory(categoryKey, currentLang);
 
         items.forEach(item => {
-            const itemEl = document.createElement('div');
-            itemEl.className = 'menu-item';
-            itemEl.innerHTML = `
+            const el = document.createElement('div');
+            el.className = 'menu-item';
+            el.innerHTML = `
                 <span class="item-name">${item.name}</span>
                 <span class="item-price">${item.price} <span style="font-size:0.8em; font-weight:400;">OMR</span></span>
             `;
-            itemsGrid.appendChild(itemEl);
+            itemsGrid.appendChild(el);
         });
     }
 
-    // View Navigation
+    // ----------------------------------------------------------
+    // VIEW SWITCHING
+    // ----------------------------------------------------------
     function showCategoryView() {
         currentCategory = null;
         itemsView.classList.add('hidden');
         categoryView.classList.remove('hidden');
+
         sectionTitle.textContent = currentLang === 'en' ? "Our Menu" : "قائمتنا";
+
         renderCategories();
         window.scrollTo(0, 0);
     }
 
-    function showItemsView(categoryKey, catDisplayName) {
+    function showItemsView(categoryKey) {
         currentCategory = categoryKey;
-        if (!catDisplayName) {
-            const catObj = getCategories(currentLang).find(c => c.key === categoryKey);
-            catDisplayName = catObj ? catObj.displayName : categoryKey;
-        }
+
+        const catObj = getCategories(currentLang).find(c => c.key === categoryKey);
+        const catDisplayName = catObj ? catObj.displayName : categoryKey;
 
         categoryView.classList.add('hidden');
         itemsView.classList.remove('hidden');
+
         sectionTitle.textContent = catDisplayName;
+
         renderItems(categoryKey);
         window.scrollTo(0, 0);
     }
 
-    // History API Handling
+    // ----------------------------------------------------------
+    // HISTORY NAVIGATION
+    // ----------------------------------------------------------
     function navigateToCategory(categoryKey) {
         showItemsView(categoryKey);
+
         try {
             history.pushState({ view: 'items', category: categoryKey }, '', '#items');
         } catch (e) {
-            console.warn('History API not supported or blocked:', e);
+            console.warn('History API blocked:', e);
         }
-    }
-
-    function navigateToHome() {
-        showCategoryView();
-        // If we are navigating "back" historically, we might not want to pushState here if we are already coming from popstate.
-        // But for initial load or manual "Home" button (if we had one), we might.
-        // For the "Back" button which acts like browser back, we use history.back()
     }
 
     window.addEventListener('popstate', (event) => {
         if (event.state && event.state.view === 'items') {
             showItemsView(event.state.category);
         } else {
-            // Default to category view (Home)
             showCategoryView();
         }
     });
 
-    // Language Toggle
+    // ----------------------------------------------------------
+    // LANGUAGE TOGGLE
+    // ----------------------------------------------------------
     function toggleLanguage() {
         if (currentLang === 'en') {
             currentLang = 'ar';
@@ -161,13 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.lang = 'en';
         }
 
-        // Update Hero Quote
         const heroQuote = document.querySelector('.hero-quote');
         if (heroQuote) {
-            heroQuote.textContent = currentLang === 'en' ? heroQuote.dataset.en : heroQuote.dataset.ar;
+            heroQuote.textContent = currentLang === 'en'
+                ? heroQuote.dataset.en
+                : heroQuote.dataset.ar;
         }
 
-        // Refresh current view
         if (currentCategory) {
             showItemsView(currentCategory);
         } else {
@@ -175,36 +190,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Listeners
-    // Back button with robust fallback
+    langToggleBtn.addEventListener('click', toggleLanguage);
+
+    // ----------------------------------------------------------
+    // BUTTON: Back to Categories
+    // ----------------------------------------------------------
     backBtn.addEventListener('click', () => {
         if (history.state && history.state.view === 'items') {
             history.back();
         } else {
-            // Fallback if History API failed or state is missing/invalid
             showCategoryView();
-            // Clean URL if needed
-            try {
-                if (window.location.hash === '#items') {
-                    history.replaceState({ view: 'categories' }, '', ' ');
-                }
-            } catch (e) { }
         }
     });
 
-    langToggleBtn.addEventListener('click', toggleLanguage);
+    // ----------------------------------------------------------
+    // SWIPE LEFT TO GO BACK
+    // ----------------------------------------------------------
+    let startX = 0;
+    let endX = 0;
 
-    // Initial Load
-    // Handle hash on load if someone shares a link (basic support)
-    if (window.location.hash === '#items' && history.state && history.state.view === 'items') {
-        showItemsView(history.state.category);
-    } else {
-        // Replace initial state to ensure we have a clean slate to go back to
-        try {
-            history.replaceState({ view: 'categories' }, '', ' ');
-        } catch (e) {
-            console.warn('History API not supported or blocked:', e);
+    document.addEventListener('touchstart', (e) => {
+        startX = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener('touchend', (e) => {
+        endX = e.changedTouches[0].screenX;
+
+        if (startX - endX > 60) {
+            // Left swipe
+            if (currentCategory) {
+                if (history.state && history.state.view === 'items') {
+                    history.back();
+                } else {
+                    showCategoryView();
+                }
+            }
         }
-        showCategoryView();
-    }
+    });
+
+    // ----------------------------------------------------------
+    // INITIAL LOAD
+    // ----------------------------------------------------------
+    try {
+        history.replaceState({ view: 'categories' }, '', ' ');
+    } catch (e) {}
+
+    showCategoryView();
 });
