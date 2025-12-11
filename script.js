@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ----------------------------------------------------------
-    // DOM Elements
+    // DOM ELEMENTS
     // ----------------------------------------------------------
     const categoryView = document.getElementById('category-view');
     const itemsView = document.getElementById('items-view');
@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const langText = langToggleBtn.querySelector('.lang-text');
     const backBtnText = backBtn.querySelector('.text');
     const sectionTitle = document.getElementById('section-title');
+    const logoHome = document.getElementById('logo-home');
     const body = document.body;
 
     // ----------------------------------------------------------
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentLang = 'en';
     let currentCategory = null;
 
-    // Category Icons
+    // Emoji Icons
     const categoryIcons = {
         "Juice": "🥤",
         "Hot Drinks": "☕",
@@ -42,14 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const seen = new Set();
 
         menuData.forEach(item => {
-            const catEn = item.categoryEn;
-            const catDisplay = lang === 'en' ? item.categoryEn : item.categoryAr;
+            const key = item.categoryEn;
+            const display = lang === "en" ? item.categoryEn : item.categoryAr;
 
-            if (!seen.has(catEn)) {
-                seen.add(catEn);
+            if (!seen.has(key)) {
+                seen.add(key);
                 uniqueCategories.push({
-                    key: catEn,
-                    displayName: catDisplay
+                    key,
+                    displayName: display
                 });
             }
         });
@@ -61,21 +62,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return menuData
             .filter(item => item.categoryEn === categoryKey)
             .map(item => ({
-                name: lang === 'en' ? item.nameEn : item.nameAr,
+                name: lang === "en" ? item.nameEn : item.nameAr,
                 price: item.price
             }));
     }
 
     // ----------------------------------------------------------
-    // RENDER FUNCTIONS
+    // RENDERING
     // ----------------------------------------------------------
     function renderCategories() {
-        categoryGrid.innerHTML = '';
+        categoryGrid.innerHTML = "";
         const categories = getCategories(currentLang);
 
         categories.forEach(cat => {
             const card = document.createElement('div');
-            card.className = 'category-card';
+            card.className = "category-card";
 
             const icon = categoryIcons[cat.key] || "🍽️";
 
@@ -84,27 +85,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="category-name">${cat.displayName}</span>
             `;
 
-            // Use navigateToCategory instead of showItemsView
-            card.addEventListener('click', () => {
-                navigateToCategory(cat.key);
-            });
+            // Use navigateToCategory instead of direct view
+            card.addEventListener('click', () => navigateToCategory(cat.key));
 
             categoryGrid.appendChild(card);
         });
     }
 
     function renderItems(categoryKey) {
-        itemsGrid.innerHTML = '';
+        itemsGrid.innerHTML = "";
         const items = getItemsForCategory(categoryKey, currentLang);
 
         items.forEach(item => {
-            const el = document.createElement('div');
-            el.className = 'menu-item';
-            el.innerHTML = `
+            const element = document.createElement('div');
+            element.className = "menu-item";
+
+            element.innerHTML = `
                 <span class="item-name">${item.name}</span>
-                <span class="item-price">${item.price} <span style="font-size:0.8em; font-weight:400;">OMR</span></span>
+                <span class="item-price">${item.price} 
+                    <span style="font-size:0.8em; font-weight:400;">OMR</span>
+                </span>
             `;
-            itemsGrid.appendChild(el);
+
+            itemsGrid.appendChild(element);
         });
     }
 
@@ -113,10 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----------------------------------------------------------
     function showCategoryView() {
         currentCategory = null;
+
         itemsView.classList.add('hidden');
         categoryView.classList.remove('hidden');
 
-        sectionTitle.textContent = currentLang === 'en' ? "Our Menu" : "قائمتنا";
+        sectionTitle.textContent = currentLang === "en" ? "Our Menu" : "قائمتنا";
 
         renderCategories();
         window.scrollTo(0, 0);
@@ -126,32 +130,32 @@ document.addEventListener('DOMContentLoaded', () => {
         currentCategory = categoryKey;
 
         const catObj = getCategories(currentLang).find(c => c.key === categoryKey);
-        const catDisplayName = catObj ? catObj.displayName : categoryKey;
+        const displayName = catObj ? catObj.displayName : categoryKey;
 
         categoryView.classList.add('hidden');
         itemsView.classList.remove('hidden');
 
-        sectionTitle.textContent = catDisplayName;
+        sectionTitle.textContent = displayName;
 
         renderItems(categoryKey);
         window.scrollTo(0, 0);
     }
 
     // ----------------------------------------------------------
-    // HISTORY NAVIGATION
+    // HISTORY API
     // ----------------------------------------------------------
     function navigateToCategory(categoryKey) {
         showItemsView(categoryKey);
 
         try {
-            history.pushState({ view: 'items', category: categoryKey }, '', '#items');
+            history.pushState({ view: "items", category: categoryKey }, "", "#items");
         } catch (e) {
-            console.warn('History API blocked:', e);
+            console.warn("History API failed:", e);
         }
     }
 
     window.addEventListener('popstate', (event) => {
-        if (event.state && event.state.view === 'items') {
+        if (event.state && event.state.view === "items") {
             showItemsView(event.state.category);
         } else {
             showCategoryView();
@@ -159,28 +163,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ----------------------------------------------------------
-    // LANGUAGE TOGGLE
+    // LANGUAGE SWITCH
     // ----------------------------------------------------------
     function toggleLanguage() {
-        if (currentLang === 'en') {
-            currentLang = 'ar';
-            langText.textContent = 'English';
-            backBtnText.textContent = 'العودة للقائمة';
+        if (currentLang === "en") {
+            currentLang = "ar";
+            langText.textContent = "English";
+            backBtnText.textContent = "العودة للقائمة";
             body.classList.add('rtl');
-            document.documentElement.lang = 'ar';
+            document.documentElement.lang = "ar";
         } else {
-            currentLang = 'en';
-            langText.textContent = 'العربية';
-            backBtnText.textContent = 'Back to Categories';
+            currentLang = "en";
+            langText.textContent = "العربية";
+            backBtnText.textContent = "Back to Categories";
             body.classList.remove('rtl');
-            document.documentElement.lang = 'en';
+            document.documentElement.lang = "en";
         }
 
-        const heroQuote = document.querySelector('.hero-quote');
-        if (heroQuote) {
-            heroQuote.textContent = currentLang === 'en'
-                ? heroQuote.dataset.en
-                : heroQuote.dataset.ar;
+        // Update hero quote
+        const quote = document.querySelector(".hero-quote");
+        if (quote) {
+            quote.textContent = quote.dataset[currentLang];
         }
 
         if (currentCategory) {
@@ -193,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     langToggleBtn.addEventListener('click', toggleLanguage);
 
     // ----------------------------------------------------------
-    // BUTTON: Back to Categories
+    // BACK BUTTON
     // ----------------------------------------------------------
     backBtn.addEventListener('click', () => {
-        if (history.state && history.state.view === 'items') {
+        if (history.state && history.state.view === "items") {
             history.back();
         } else {
             showCategoryView();
@@ -204,22 +207,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ----------------------------------------------------------
-    // SWIPE LEFT TO GO BACK
+    // SWIPE LEFT → GO BACK
     // ----------------------------------------------------------
     let startX = 0;
     let endX = 0;
 
-    document.addEventListener('touchstart', (e) => {
+    document.addEventListener("touchstart", (e) => {
         startX = e.changedTouches[0].screenX;
     });
 
-    document.addEventListener('touchend', (e) => {
+    document.addEventListener("touchend", (e) => {
         endX = e.changedTouches[0].screenX;
 
         if (startX - endX > 60) {
-            // Left swipe
             if (currentCategory) {
-                if (history.state && history.state.view === 'items') {
+                if (history.state && history.state.view === "items") {
                     history.back();
                 } else {
                     showCategoryView();
@@ -229,10 +231,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ----------------------------------------------------------
+    // LOGO CLICK → GO HOME
+    // ----------------------------------------------------------
+    if (logoHome) {
+        logoHome.style.cursor = "pointer";
+
+        logoHome.addEventListener("click", () => {
+            showCategoryView();
+
+            try {
+                history.pushState({ view: "categories" }, "", " ");
+            } catch (e) {}
+        });
+    }
+
+    // ----------------------------------------------------------
     // INITIAL LOAD
     // ----------------------------------------------------------
     try {
-        history.replaceState({ view: 'categories' }, '', ' ');
+        history.replaceState({ view: "categories" }, "", " ");
     } catch (e) {}
 
     showCategoryView();
